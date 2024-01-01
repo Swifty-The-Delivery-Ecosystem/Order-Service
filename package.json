@@ -1,0 +1,23 @@
+{
+  "name": "swifty-order-service",
+  "version": "1.0.0",
+  "description": "Order Service for Swifty",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service.git"
+  },
+  "author": "Tushar Bansal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service/issues"
+  },
+  "homepage": "https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service#readme",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  }
+}
