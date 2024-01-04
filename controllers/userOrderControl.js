@@ -30,7 +30,6 @@ exports.getOrderHistory = async (req, res, next) => {
       // If 'active' is not in the URL or has a different value, fetch all orders
       orders = await Order.find({ userID:userID });
     }
-
     res.json({ orders });
 
   } catch (error) {

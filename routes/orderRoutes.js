@@ -16,7 +16,7 @@ const router = express.Router();
 
 router.post("/user", createOrder);
 
-router.get("/user/:active?", userOrderController.getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
+router.get("/user/:active?",getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
 
 router.put("/vendor", updateOrderStatus);
 
