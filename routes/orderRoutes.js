@@ -1,15 +1,25 @@
 const express = require("express");
-const vendorOrderController = require("../controllers/vendorOrderController");
-const userOrderController = require("../controllers/userOrderController");
+
+const {
+  createOrder,
+  getOrderHistory,
+} = require("../controllers/userOrderControl");
+
+const {
+  updateOrderStatus,
+  getOrders,
+} = require("../controllers/vendorOrderControl");
 
 const router = express.Router();
 
-router.post("/user", userOrderController.createOrder);
+// Add middleware to all the apis below.
+
+router.post("/user", createOrder);
 
 router.get("/user/:active?", userOrderController.getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
 
-router.post("/vendor", vendorOrderController.orderStatus);
+router.put("/vendor", updateOrderStatus);
 
-router.get("/vendor", vendorOrderController.getOrders);
+router.get("/vendor", getOrders);
 
 module.exports = router;
