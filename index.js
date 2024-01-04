@@ -1,12 +1,44 @@
-const express = require('express');
-const dotenv = require('dotenv').config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const cors = require("cors");
+require("dotenv").config();
 
+const orderRoutes = require("./routes/orderRoutes");
+
+const { PORT, MONGODB_URI, NODE_ENV, ORIGIN } = require("./config");
 
 const app = express();
-const port = process.env.PORT;
 
+app.use(bodyParser.json());
+app.use(
+  cors({
+    credentials: true,
+    origin: ORIGIN,
+    optionsSuccessStatus: 200,
+  })
+);
 
-app.listen(port,()=>{
-  console.log('listening on port '+process.env.PORT);
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
-app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    type: "success",
+    message: "server is up and running",
+    data: null,
+  });
+});
+
+app.use("/orders", orderRoutes);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({ error: err.message });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
