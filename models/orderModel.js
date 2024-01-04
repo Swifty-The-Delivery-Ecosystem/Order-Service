@@ -1,22 +1,29 @@
-const mongoose = require('mongoose');
-const OrderItem = require('../models/orderItem');
+const mongoose = require("mongoose");
+const OrderItem = require("../models/orderItem");
 
 const orderSchema = mongoose.Schema({
-  _id : mongoose.Schema.Types.ObjectId,
-  restaurant_id:{
-    type:mongoose.Schema.Types.ObjectId,
-    required:true,
+  _id: mongoose.Schema.Types.ObjectId,
+  restaurant_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
   },
-  orderItems:  [
+  orderItems: [
     {
-      type : OrderItem
-    }
+      menu_item_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "OrderItem",
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+    },
   ],
-  payment_status : {
+  payment_status: {
     type: Number,
-    required:true,
-  }
+    required: true,
+  },
+});
 
-})
-
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model("Order", orderSchema);
