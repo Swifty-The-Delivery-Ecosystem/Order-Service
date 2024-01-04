@@ -3,12 +3,12 @@ const express = require("express");
 const {
   createOrder,
   getOrderHistory,
-} = require("../controllers/userOrderController");
+} = require("../controllers/userOrderControl");
 
 const {
   updateOrderStatus,
   getOrders,
-} = require("../controllers/vendorOrderController");
+} = require("../controllers/vendorOrderControl");
 
 const router = express.Router();
 
