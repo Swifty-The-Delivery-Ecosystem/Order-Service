@@ -2,9 +2,9 @@ const Order = require("../models/orderModel");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const {userID, orderItems, totalAmount, restaurant_id } = req.body;
-    const order = await Order.create({ userID, orderItems, totalAmount, restaurant_id });
-    //const paymentResult = await PaymentGatewayService.processPayment(order);
+    const {userId, orderItems, totalAmount, restaurant_id,} = req.body;
+    const order = await Order.create({ userId, orderItems, totalAmount, restaurant_id,  });
+    const paymentResult = await PaymentGatewayService.processPayment(order);
     if (paymentResult.success) {
       // Payment successful, update the order status or perform additional actions
       order.payment_status = 'Paid';

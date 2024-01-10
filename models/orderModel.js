@@ -18,7 +18,7 @@ const orderSchema = mongoose.Schema({
     required: true,
   },
   orderItems: [
-    OrderItem
+    orderItemSchema
   ],
   payment_status: {
     type: String,
