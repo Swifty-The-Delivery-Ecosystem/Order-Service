@@ -6,8 +6,8 @@ exports.updateOrderStatus = async (req, res, next) => {
 
     // Update the order status in the database
     const updatedOrder = await Order.findOneAndUpdate(
-      { _id: orderId, restaurant_id: restaurantId },
-      { $set: { payment_status: status } },
+      { _id: orderId },
+      { $set: { orderStatus: status } },
       { new: true }
     );
 
@@ -27,7 +27,7 @@ exports.getOrders = async (req, res, next) => {
 
     const orders = await Order.find({
       restaurant_id: restaurantId,
-      payment_status: 1, // Assuming "1" represents "payment_success" status
+      payment_status: "paid"
     });
 
     res.status(200).json(orders);
