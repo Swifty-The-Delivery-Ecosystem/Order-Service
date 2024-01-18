@@ -4,7 +4,12 @@
   "description": "Order Service for Swifty",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "env-cmd -f .env.development node index.js",
+    "start:staging": "env-cmd -f .env.staging node index.js",
+    "start:production": "env-cmd -f .env.production node index.js",
+    "start:development": "env-cmd -f .env.development node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +24,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "env-cmd": "^10.1.0",
     "express": "^4.18.2",
     "mongoose": "^8.0.3"
   }

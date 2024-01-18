@@ -1,42 +1,42 @@
 const mongoose = require("mongoose");
 const OrderItem = require("../models/orderItem");
 
-const orderItemSchema = mongoose.Schema({
-  menu_item_id : {
-    type : mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  quantity : {
-    type : Number,
-    required : true
-  }
-})
 
 const orderSchema = mongoose.Schema({
-  restaurant_id: {
+  vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
-  orderItems: [
-    orderItemSchema
-  ],
+  items:{
+    type: mongoose.Schema.Types.ObjectId, // Cart ID
+    required: true,
+  },
   payment_status: {
     type: String,
     enum: ['paid',  'pending', 'failed'],
     default:'pending'
   },
-  totalAmount : {
+  order_payment_detail_id:{
+    type: mongoose.Schema.Types.ObjectId
+  },
+  amount: {
     type:Number,
     required:true
   },
-  userId:{
+  user_id:{
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
-  orderStatus:{
+  order_status:{
     type : String,
     enum: ['being cooked',  'departed', 'confirmed', 'declined', 'pending'],
     default:'pending'
+  },
+  delivery_boy_id:{
+    type: mongoose.Schema.Types.ObjectId
+  },
+  order_instructions:{
+    type:String
   }
 
 });

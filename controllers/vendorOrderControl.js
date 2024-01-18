@@ -2,11 +2,11 @@ const Order = require("../models/orderModel");
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const { orderId, restaurantId, status } = req.body;
+    const { order_id, vendor_id, status } = req.body;
 
     // Update the order status in the database
     const updatedOrder = await Order.findOneAndUpdate(
-      { _id: orderId },
+      { _id: order_id },
       { $set: { orderStatus: status } },
       { new: true }
     );
@@ -23,10 +23,10 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const { restaurantId } = req.query;
+    const { vendor_id } = req.query;
 
     const orders = await Order.find({
-      restaurant_id: restaurantId,
+      vendor_id: vendor_id,
       payment_status: "paid"
     });
 
