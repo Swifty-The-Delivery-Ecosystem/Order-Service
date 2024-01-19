@@ -3,6 +3,7 @@ const express = require("express");
 const {
   createOrder,
   getOrderHistory,
+  updateConfirmedOrderStatus,
 } = require("../controllers/userOrderControl");
 
 const {
@@ -21,5 +22,7 @@ router.get("/users/:user_id/:active?",getOrderHistory); //Add a query as a param
 router.put("/vendor", updateOrderStatus);
 
 router.get("/vendor/:vendor_id", getOrders);
+
+router.put("/orderstatus",updateConfirmedOrderStatus);
 
 module.exports = router;

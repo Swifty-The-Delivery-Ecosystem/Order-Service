@@ -69,3 +69,18 @@ exports.getOrderHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateConfirmedOrderStatus = async(req,res,next)=>{
+  try{
+    const {orderStatus, order_id} = req.body;
+    console.log(req.body)
+    if (orderStatus === 'paid'){
+      const order = await Order.updateOne({ _id: order_id }, { $set: { payment_status: orderStatus } })
+      return res.send("doen");
+      // Acknowledge successful processing
+      //acknowledgeMessage(message);
+    } 
+  }catch (error){
+    //acknowledgeMessage(message);
+  }
+}
