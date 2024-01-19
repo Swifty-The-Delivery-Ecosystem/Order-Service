@@ -1,20 +1,37 @@
 const Order = require("../models/orderModel");
-const axios = require('axios');
+const axios = require("axios");
+const amqp = require("amqplib");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { user_id, items, amount, vendor_id, order_instructions, payment_method } = req.body;
-    const order = await Order.create({ user_id, items, amount, vendor_id, order_instructions });
+    const {
+      user_id,
+      items,
+      amount,
+      vendor_id,
+      order_instructions,
+      payment_method,
+    } = req.body;
+    const order = await Order.create({
+      user_id,
+      items,
+      amount,
+      vendor_id,
+      order_instructions,
+    });
 
     // Check if the payment method is online before processing the payment
-    if (payment_method === 'online') {
+    if (payment_method === "online") {
       try {
         // Make a request to the Payment Service API to process the payment
-        const paymentResponse = await axios.post('http://localhost:5000/payment', {
-          amount
-        });
-  
-        const razorpayPaymentData= paymentResponse.data;
+        const paymentResponse = await axios.post(
+          "http://localhost:5000/payment",
+          {
+            amount,
+          }
+        );
+
+        const razorpayPaymentData = paymentResponse.data;
         if (paymentResponse.status === 200) {
           order.razorpay_payment = {
             id: razorpayPaymentData.id,
@@ -30,15 +47,15 @@ exports.createOrder = async (req, res, next) => {
             notes: razorpayPaymentData.notes,
             created_at: razorpayPaymentData.created_at,
           };
-          await order.save()
+          await order.save();
           return res.status(201).json(order);
-        } 
+        }
 
-        return res.status(400).json({ error: 'Order processing failed' });
+        return res.status(400).json({ error: "Order processing failed" });
       } catch (error) {
         // Handle errors that occurred during the payment processing request
-        console.error('Error processing payment:', error);
-        return res.status(500).json({ error: 'Payment processing failed' });
+        console.error("Error processing payment:", error);
+        return res.status(500).json({ error: "Payment processing failed" });
       }
     }
 
@@ -56,31 +73,45 @@ exports.getOrderHistory = async (req, res, next) => {
     let orders;
 
     // Check the 'active' parameter in the URL
-    if (activeQueryParam === 'active') {
+    if (activeQueryParam === "active") {
       // If 'active' is in the URL, fetch only active orders based on your business logic
-      orders = await Order.findOne({ user_id:userID });
+      orders = await Order.findOne({ user_id: userID });
     } else {
       // If 'active' is not in the URL or has a different value, fetch all orders
-      orders = await Order.find({ user_id:userID });
+      orders = await Order.find({ user_id: userID });
     }
-    res.json({orders});
-
+    res.json({ orders });
   } catch (error) {
     next(error);
   }
 };
 
-exports.updateConfirmedOrderStatus = async(req,res,next)=>{
-  try{
-    const {orderStatus, order_id} = req.body;
-    console.log(req.body)
-    if (orderStatus === 'paid'){
-      const order = await Order.updateOne({ _id: order_id }, { $set: { payment_status: orderStatus } })
-      return res.send("doen");
+exports.updateConfirmedOrderStatus = async (req, res, next) => {
+  const channel = await amqp
+    .connect("amqp://localhost")
+    .then((conn) => conn.createChannel());
+  const exchangeName = "paymentExchange";
+  const routingKey = "paymentSuccess";
+
+  await channel.assertExchange(exchangeName, "direct", { durable: false });
+  const queue = await channel.assertQueue("", { exclusive: true });
+  await channel.bindQueue(queue.queue, exchangeName, routingKey);
+
+  channel.consume(queue.queue, async (msg) => {
+    const data = JSON.parse(msg.content.toString());
+
+    try {
+      // Update order status in your database
+      const order = await Order.updateOne(
+        { _id: data.orderId },
+        { $set: { payment_status: "paid" } }
+      );
+      console.log("Order status updated:", order);
+
       // Acknowledge successful processing
-      //acknowledgeMessage(message);
-    } 
-  }catch (error){
-    //acknowledgeMessage(message);
-  }
-}
+      channel.ack(msg);
+    } catch (error) {
+      console.error("Error updating order status:", error);
+    }
+  });
+};
