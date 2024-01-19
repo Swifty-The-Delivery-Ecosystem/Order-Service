@@ -2,6 +2,24 @@ const mongoose = require("mongoose");
 const OrderItem = require("../models/orderItem");
 
 
+const razorpay_paymentSchema = mongoose.Schema({
+  id: {
+    type: String,
+    required: true,
+  },
+  amount: Number,
+  amount_paid: Number,
+  amount_due: Number,
+  currency: String,
+  receipt: String,
+  entity: String,  
+  offer_id: String,
+  status: String, 
+  attempts: Number, 
+  notes: [String], 
+  created_at: Number, 
+});
+
 const orderSchema = mongoose.Schema({
   vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -37,8 +55,10 @@ const orderSchema = mongoose.Schema({
   },
   order_instructions:{
     type:String
+  },
+  razorpay_payment:{
+    type:razorpay_paymentSchema
   }
-
 });
 
 module.exports = mongoose.model("Order", orderSchema);

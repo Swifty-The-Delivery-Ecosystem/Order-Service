@@ -32,7 +32,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("api/v1/order_service/", orderRoutes);
+app.use("/api/v1/order_service", orderRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

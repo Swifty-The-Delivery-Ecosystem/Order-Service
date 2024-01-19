@@ -1,14 +1,47 @@
 const Order = require("../models/orderModel");
+const axios = require('axios');
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const {user_id, items, amount, vendor_id,order_instructions} = req.body;
+    const { user_id, items, amount, vendor_id, order_instructions, payment_method } = req.body;
     const order = await Order.create({ user_id, items, amount, vendor_id, order_instructions });
-    const paymentResult = await PaymentGatewayService.processPayment(order);
-    if (paymentResult.success) {
-      // Payment successful, update the order status or perform additional actions
-      order.payment_status = 'Paid';
+
+    // Check if the payment method is online before processing the payment
+    if (payment_method === 'online') {
+      try {
+        // Make a request to the Payment Service API to process the payment
+        const paymentResponse = await axios.post('http://localhost:5000/payment', {
+          amount
+        });
+  
+        const razorpayPaymentData= paymentResponse.data;
+        if (paymentResponse.status === 200) {
+          order.razorpay_payment = {
+            id: razorpayPaymentData.id,
+            amount: razorpayPaymentData.amount,
+            amount_paid: razorpayPaymentData.amount_paid,
+            amount_due: razorpayPaymentData.amount_due,
+            currency: razorpayPaymentData.currency,
+            receipt: razorpayPaymentData.receipt,
+            entity: razorpayPaymentData.entity,
+            offer_id: razorpayPaymentData.offer_id,
+            status: razorpayPaymentData.status,
+            attempts: razorpayPaymentData.attempts,
+            notes: razorpayPaymentData.notes,
+            created_at: razorpayPaymentData.created_at,
+          };
+          await order.save()
+          return res.status(201).json(order);
+        } 
+
+        return res.status(400).json({ error: 'Order processing failed' });
+      } catch (error) {
+        // Handle errors that occurred during the payment processing request
+        console.error('Error processing payment:', error);
+        return res.status(500).json({ error: 'Payment processing failed' });
+      }
     }
+
     await order.save();
     res.status(201).json(order);
   } catch (error) {
