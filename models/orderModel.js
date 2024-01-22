@@ -4,8 +4,7 @@ const OrderItem = require("../models/orderItem");
 
 const razorpay_paymentSchema = mongoose.Schema({
   id: {
-    type: String,
-    required: true,
+    type: String
   },
   amount: Number,
   amount_paid: Number,

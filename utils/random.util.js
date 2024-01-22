@@ -29,3 +29,8 @@ exports.randomDescription = ()=>{
 
 }
 
+exports.randomOrderStatus = ()=>{
+  const orderStatus = Math.random() < 0.5 ? 'active' : 'previous';
+
+  return orderStatus;
+}
