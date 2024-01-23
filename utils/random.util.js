@@ -34,3 +34,9 @@ exports.randomOrderStatus = ()=>{
 
   return orderStatus;
 }
+
+exports.randomOrderConfirmStatus = ()=>{
+  const orderConfirmSatus = Math.random() < 0.5 ? 'accepted' : 'decline';
+
+  return orderConfirmSatus;
+}

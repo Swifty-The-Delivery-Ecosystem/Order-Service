@@ -7,7 +7,7 @@ describe('PUT Vendor Order UPadte', function(){
 
   test('/api/v1/order_service/vendor/order_update', async ()=>{
     const order_id = "65ae6c08cb43b9e058192b9d"
-    const status = "confirmed"
+    const status = randomUtils.randomOrderConfirmStatus();
     const vendor_id= "65aa4b87944c28a8f2548e0a";
     const res = await request(app)
       .put('/api/v1/order_service/vendor/order_update')
