@@ -13,7 +13,6 @@ describe('GET /order/order_history', function(){
       .get('/api/v1/order_service/users/'+userId.toString())
       .set('Authorization', "Bearer "+token)
       .set('Accept', 'application/json');
-   console.log(res.status)
    if(res.status  == 201 || 200) {
         const orders =res.body.orders;
         expect(orders[0]).toHaveProperty('vendor_id');

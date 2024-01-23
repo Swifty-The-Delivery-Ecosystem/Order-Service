@@ -18,7 +18,6 @@ describe('POST order/user', function(){
         payment_method:'online'
       })
       .set('Accept', 'application/json');
-      console.log(res.status);
 
     if(res.status == 400) {
         

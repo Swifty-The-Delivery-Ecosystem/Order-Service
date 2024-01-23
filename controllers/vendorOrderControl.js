@@ -21,17 +21,3 @@ exports.updateOrderStatus = async (req, res, next) => {
   }
 };
 
-exports.getOrders = async (req, res, next) => {
-  try {
-    const { vendor_id } = req.query;
-
-    const orders = await Order.find({
-      vendor_id: vendor_id,
-      payment_status: "paid"
-    });
-
-    res.status(200).json(orders);
-  } catch (error) {
-    next(error);
-  }
-};

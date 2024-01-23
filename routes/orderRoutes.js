@@ -19,9 +19,9 @@ router.post("/user", createOrder);
 
 router.get("/users/:user_id/:active?",getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
 
-router.put("/vendor", updateOrderStatus);
+router.put("/vendor/order_update", updateOrderStatus);
 
-router.get("/vendor/:vendor_id", getOrders);
+// router.get("/vendor/:vendor_id", getOrders);
 
 router.put("/orderstatus",updateConfirmedOrderStatus);
 
