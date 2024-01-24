@@ -1,6 +1,5 @@
 const Order = require("../models/orderModel");
 const axios = require("axios");
-const amqp = require("amqplib");
 
 exports.createOrder = async (req, res, next) => {
   try {
@@ -84,34 +83,4 @@ exports.getOrderHistory = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
-
-exports.updateConfirmedOrderStatus = async (req, res, next) => {
-  const channel = await amqp
-    .connect("amqp://localhost")
-    .then((conn) => conn.createChannel());
-  const exchangeName = "paymentExchange";
-  const routingKey = "paymentSuccess";
-
-  await channel.assertExchange(exchangeName, "direct", { durable: false });
-  const queue = await channel.assertQueue("", { exclusive: true });
-  await channel.bindQueue(queue.queue, exchangeName, routingKey);
-
-  channel.consume(queue.queue, async (msg) => {
-    const data = JSON.parse(msg.content.toString());
-
-    try {
-      // Update order status in your database
-      const order = await Order.updateOne(
-        { _id: data.orderId },
-        { $set: { payment_status: "paid" } }
-      );
-      console.log("Order status updated:", order);
-
-      // Acknowledge successful processing
-      channel.ack(msg);
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    }
-  });
 };
