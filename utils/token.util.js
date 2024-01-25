@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { JWT_DECODE_ERR } = require("../errors");
+// const { JWT_DECODE_ERR } = require("../errors");
 const { JWT_SECRET } = require("../config");
 
 exports.createJwtToken = (payload) => {
