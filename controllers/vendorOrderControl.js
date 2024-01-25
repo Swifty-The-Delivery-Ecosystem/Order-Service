@@ -5,7 +5,6 @@ exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { order_id, vendor_id, status } = req.body;
 
-    // Update the order status in the database
     const updatedOrder = await Order.findOneAndUpdate(
       { _id: order_id },
       { $set: { orderStatus: status } },
@@ -24,11 +23,12 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const { vendor_id } = req.query;
+    const vendor_id = req.query.vendor_id;
+    console.log(vendor_id);
 
     const orders = await Order.find({
-      vendor_id: vendor_id,
-      payment_status: "paid",
+      restaurant_id: vendor_id,
+      // payment_status: "paid",
     });
 
     res.status(200).json(orders);

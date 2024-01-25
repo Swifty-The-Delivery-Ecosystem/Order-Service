@@ -3,22 +3,9 @@ const axios = require("axios");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const {
-      user_id,
-      items,
-      amount,
-      vendor_id,
-      order_instructions,
-      payment_method,
-    } = req.body;
-    const order = await Order.create({
-      user_id,
-      items,
-      amount,
-      vendor_id,
-      order_instructions,
-    });
-
+    const { user_id, items, amount, vendor_id, order_instructions, payment_method } = req.body;
+    const order = await Order.create({ user_id, items, amount, vendor_id, order_instructions });
+    console.log(payment_method);
     // Check if the payment method is online before processing the payment
     if (payment_method === "online") {
       try {
@@ -70,7 +57,7 @@ exports.getOrderHistory = async (req, res, next) => {
     const activeQueryParam = req.params.active;
     const userID = req.params.user_id;
     let orders;
-
+    console.log(userID);
     // Check the 'active' parameter in the URL
     if (activeQueryParam === "active") {
       // If 'active' is in the URL, fetch only active orders based on your business logic
@@ -79,7 +66,8 @@ exports.getOrderHistory = async (req, res, next) => {
       // If 'active' is not in the URL or has a different value, fetch all orders
       orders = await Order.find({ user_id: userID });
     }
-    res.json({ orders });
+    res.status(201).json({orders});
+
   } catch (error) {
     next(error);
   }
