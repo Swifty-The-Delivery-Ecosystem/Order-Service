@@ -4,7 +4,16 @@ const axios = require('axios');
 exports.createOrder = async (req, res, next) => {
   try {
     const { user_id, items, amount, vendor_id, order_instructions, payment_method } = req.body;
-    const order = await Order.create({ user_id, items, amount, vendor_id, order_instructions });
+    const createOrder = {
+      user_id:user_id,
+      items :items.map(item => ({ menu_item_id: item._id, name:item.name, quantity :item.quantity })),
+      amount:amount,
+      vendor_id:vendor_id,
+      order_instructions:order_instructions,
+      payment_method:payment_method
+    }
+    console.log(createOrder);
+    const order = await Order.create(createOrder);
     console.log(payment_method);
     // Check if the payment method is online before processing the payment
     if (payment_method === 'online') {

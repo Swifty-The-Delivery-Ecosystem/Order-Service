@@ -11,7 +11,7 @@ describe('POST order/user', function(){
       .post('/api/v1/order_service/user')
       .send({
         user_id:"65aa4b87944c28a8f2548e0a" ,
-        items:"65aa4b87944c28a8f2548e0a",
+        items: [{"_id":"659be0e2c1d8660c77033d47","name":"abcd","quantity":1}],
         amount:randomUtils.randomamount(), 
         vendor_id:"65aa4b87944c28a8f2548e0a",
         order_instructions:randomUtils.randomDescription(),

@@ -19,15 +19,30 @@ const razorpay_paymentSchema = mongoose.Schema({
   created_at: Number, 
 });
 
+const orderItemSchema = mongoose.Schema({
+  name:{
+    type:String,
+    required:true
+  },
+  menu_item_id : {
+    type : mongoose.Schema.Types.ObjectId,
+    required: true,
+  },
+  quantity : {
+    type : Number
+  }
+})
+
+
 const orderSchema = mongoose.Schema({
   vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
-  items:{
-    type: mongoose.Schema.Types.ObjectId, // Cart ID
+  items:[{
+    type: orderItemSchema, // Cart ID
     required: true,
-  },
+  }],
   payment_status: {
     type: String,
     enum: ['paid',  'pending', 'failed'],
