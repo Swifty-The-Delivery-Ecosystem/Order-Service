@@ -8,18 +8,22 @@ const {
 const {
   updateOrderStatus,
   getOrders,
+  updateConfirmedOrderStatus,
 } = require("../controllers/vendorOrderControl");
 
 const router = express.Router();
-
+const checkAuth = require("../middlewares/checkAuth");
+const checkVendor = require("../middlewares/checkVendor");
 // Add middleware to all the apis below.
 
-router.post("/user", createOrder);
+router.post("/user",checkAuth, createOrder);
 
-router.get("/user/:active?",getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
+router.get("/users/:user_id/:active?",checkAuth, getOrderHistory); //Add a query as a parameter to get the latest order status in the frontend.
 
-router.put("/vendor", updateOrderStatus);
+router.put("/vendor/order_update", checkVendor, updateOrderStatus);
 
 router.get("/vendor", getOrders);
+
+router.put("/orderstatus", updateConfirmedOrderStatus);
 
 module.exports = router;
