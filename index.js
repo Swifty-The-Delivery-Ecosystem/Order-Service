@@ -1,7 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const cors = require("cors");
+// const cors = require("cors");
 require("dotenv").config();
 
 const orderRoutes = require("./routes/orderRoutes");
@@ -10,14 +10,14 @@ const { PORT, MONGODB_URI, NODE_ENV, ORIGIN } = require("./config");
 
 const app = express();
 
-app.use(bodyParser.json());
-app.use(
-  cors({
-    credentials: true,
-    origin: ORIGIN,
-    optionsSuccessStatus: 200,
-  })
-);
+// app.use(bodyParser.json());
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin: ORIGIN,
+//     optionsSuccessStatus: 200,
+//   })
+// );
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
