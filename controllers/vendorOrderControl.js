@@ -24,7 +24,6 @@ exports.updateOrderStatus = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const vendor_id = req.query.vendor_id;
-    console.log(vendor_id);
 
     const orders = await Order.find({
       restaurant_id: vendor_id,

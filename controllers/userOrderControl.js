@@ -66,7 +66,6 @@ exports.getOrderHistory = async (req, res, next) => {
     const activeQueryParam = req.params.active;
     const userID = req.params.user_id;
     let orders;
-    console.log(userID);
     // Check the 'active' parameter in the URL
     if (activeQueryParam === "active") {
       // If 'active' is in the URL, fetch only active orders based on your business logic
