@@ -29,7 +29,6 @@ exports.getOrders = async (req, res, next) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
     const vendor_id = verifyJwtToken(token);
-    console.log(vendor_id);
 
     const orders = await Order.find({
       vendor_id: vendor_id,
