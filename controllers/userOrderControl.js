@@ -3,51 +3,75 @@ const axios = require("axios");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const { user_id, items, amount, vendor_id, order_instructions, payment_method } = req.body;
-    const order = await Order.create({ user_id, items, amount, vendor_id, order_instructions });
-    console.log(payment_method);
-    // Check if the payment method is online before processing the payment
-    if (payment_method === "online") {
-      try {
-        // Make a request to the Payment Service API to process the payment
-        const paymentResponse = await axios.post(
-          "http://localhost:5000/payment",
-          {
-            amount,
-          }
-        );
+    console.log("Reached here", req.body);
+    const {
+      user_id,
+      items,
+      amount,
+      vendor_id,
+      order_instructions,
+      payment_method,
+      order_id,
+    } = req.body;
+    const createOrder = {
+      user_id: user_id,
+      order_id: order_id,
+      items: items.map((item) => ({
+        menu_item_id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+      })),
+      amount: amount,
+      vendor_id: vendor_id,
+      order_instructions: order_instructions,
+      payment_method: payment_method,
+    };
+    const order = await Order.create(createOrder);
 
-        const razorpayPaymentData = paymentResponse.data;
-        if (paymentResponse.status === 200) {
-          order.razorpay_payment = {
-            id: razorpayPaymentData.id,
-            amount: razorpayPaymentData.amount,
-            amount_paid: razorpayPaymentData.amount_paid,
-            amount_due: razorpayPaymentData.amount_due,
-            currency: razorpayPaymentData.currency,
-            receipt: razorpayPaymentData.receipt,
-            entity: razorpayPaymentData.entity,
-            offer_id: razorpayPaymentData.offer_id,
-            status: razorpayPaymentData.status,
-            attempts: razorpayPaymentData.attempts,
-            notes: razorpayPaymentData.notes,
-            created_at: razorpayPaymentData.created_at,
-          };
-          await order.save();
-          return res.status(201).json(order);
-        }
+    const razorpayAmount = amount * 100;
 
-        return res.status(400).json({ error: "Order processing failed" });
-      } catch (error) {
-        // Handle errors that occurred during the payment processing request
-        console.error("Error processing payment:", error);
-        return res.status(500).json({ error: "Payment processing failed" });
-      }
-    }
+    // if (payment_method === "online") {
+    //   try {
+    //     const paymentResponse = await axios.post(
+    //       "http://localhost:5000/payment",
+    //       {
+    //         amount: razorpayAmount,
+    //       }
+    //     );
+
+    //     const razorpayPaymentData = paymentResponse.data;
+    //     if (paymentResponse.status === 200) {
+    //       order.razorpay_payment = {
+    //         id: razorpayPaymentData.id,
+    //         amount: razorpayPaymentData.amount,
+    //         amount_paid: razorpayPaymentData.amount_paid,
+    //         amount_due: razorpayPaymentData.amount_due,
+    //         currency: razorpayPaymentData.currency,
+    //         receipt: razorpayPaymentData.receipt,
+    //         entity: razorpayPaymentData.entity,
+    //         offer_id: razorpayPaymentData.offer_id,
+    //         status: razorpayPaymentData.status,
+    //         attempts: razorpayPaymentData.attempts,
+    //         notes: razorpayPaymentData.notes,
+    //         created_at: razorpayPaymentData.created_at,
+    //       };
+    //       await order.save();
+    //       return res.status(201).json(order);
+    //     }
+
+    //     return res.status(400).json({ error: "Order processing failed" });
+    //   } catch (error) {
+    //     // Handle errors that occurred during the payment processing request
+    //     console.error("Error processing payment:", error);
+
+    //     return res.status(500).json({ error: "Payment processing failed" });
+    //   }
+    // }
 
     await order.save();
     res.status(201).json(order);
   } catch (error) {
+    console.log("first");
     next(error);
   }
 };
@@ -66,8 +90,16 @@ exports.getOrderHistory = async (req, res, next) => {
       // If 'active' is not in the URL or has a different value, fetch all orders
       orders = await Order.find({ user_id: userID });
     }
-    res.status(201).json({orders});
+    res.status(201).json({ orders });
+  } catch (error) {
+    next(error);
+  }
+};
 
+exports.getOrderbyId = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ order_id: req.query.order_id });
+    res.status(201).json({ order });
   } catch (error) {
     next(error);
   }

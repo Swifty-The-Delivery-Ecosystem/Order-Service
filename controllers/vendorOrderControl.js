@@ -65,10 +65,16 @@ exports.startOrderListener = async () => {
   const exchangeName = "paymentExchangeDurable1";
   const routingKey = "paymentSuccess";
 
-  await channel.assertExchange(exchangeName, "direct", { durable: true });
+  await channel.assertExchange(exchangeName, "direct", {
+    durable: true,
+    reconnect: true,
+    autoDelete: false,
+  });
   const queue = await channel.assertQueue("", {
     exclusive: false,
     durable: true,
+    autoDelete: false,
+    reconnect: true,
   });
 
   await channel.bindQueue(queue.queue, exchangeName, routingKey);
