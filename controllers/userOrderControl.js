@@ -1,17 +1,77 @@
 const Order = require("../models/orderModel");
+const axios = require("axios");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    const {userId, orderItems, totalAmount, restaurant_id,} = req.body;
-    const order = await Order.create({ userId, orderItems, totalAmount, restaurant_id,  });
-    const paymentResult = await PaymentGatewayService.processPayment(order);
-    if (paymentResult.success) {
-      // Payment successful, update the order status or perform additional actions
-      order.payment_status = 'Paid';
-    }
+    console.log("Reached here", req.body);
+    const {
+      user_id,
+      items,
+      amount,
+      vendor_id,
+      order_instructions,
+      payment_method,
+      order_id,
+    } = req.body;
+    const createOrder = {
+      user_id: user_id,
+      order_id: order_id,
+      items: items.map((item) => ({
+        menu_item_id: item.id,
+        name: item.name,
+        quantity: item.quantity,
+      })),
+      amount: amount,
+      vendor_id: vendor_id,
+      order_instructions: order_instructions,
+      payment_method: payment_method,
+    };
+    const order = await Order.create(createOrder);
+
+    const razorpayAmount = amount * 100;
+
+    // if (payment_method === "online") {
+    //   try {
+    //     const paymentResponse = await axios.post(
+    //       "http://localhost:5000/payment",
+    //       {
+    //         amount: razorpayAmount,
+    //       }
+    //     );
+
+    //     const razorpayPaymentData = paymentResponse.data;
+    //     if (paymentResponse.status === 200) {
+    //       order.razorpay_payment = {
+    //         id: razorpayPaymentData.id,
+    //         amount: razorpayPaymentData.amount,
+    //         amount_paid: razorpayPaymentData.amount_paid,
+    //         amount_due: razorpayPaymentData.amount_due,
+    //         currency: razorpayPaymentData.currency,
+    //         receipt: razorpayPaymentData.receipt,
+    //         entity: razorpayPaymentData.entity,
+    //         offer_id: razorpayPaymentData.offer_id,
+    //         status: razorpayPaymentData.status,
+    //         attempts: razorpayPaymentData.attempts,
+    //         notes: razorpayPaymentData.notes,
+    //         created_at: razorpayPaymentData.created_at,
+    //       };
+    //       await order.save();
+    //       return res.status(201).json(order);
+    //     }
+
+    //     return res.status(400).json({ error: "Order processing failed" });
+    //   } catch (error) {
+    //     // Handle errors that occurred during the payment processing request
+    //     console.error("Error processing payment:", error);
+
+    //     return res.status(500).json({ error: "Payment processing failed" });
+    //   }
+    // }
+
     await order.save();
     res.status(201).json(order);
   } catch (error) {
+    console.log("first");
     next(error);
   }
 };
@@ -19,19 +79,26 @@ exports.createOrder = async (req, res, next) => {
 exports.getOrderHistory = async (req, res, next) => {
   try {
     const activeQueryParam = req.params.active;
-    const userID = req.body.userID;
+    const userID = req.params.user_id;
     let orders;
-
     // Check the 'active' parameter in the URL
-    if (activeQueryParam === 'active') {
+    if (activeQueryParam === "active") {
       // If 'active' is in the URL, fetch only active orders based on your business logic
-      orders = await Order.findOne({ userID:userID });
+      orders = await Order.findOne({ user_id: userID });
     } else {
       // If 'active' is not in the URL or has a different value, fetch all orders
-      orders = await Order.find({ userID:userID });
+      orders = await Order.find({ user_id: userID });
     }
-    res.json({ orders });
+    res.status(201).json({ orders });
+  } catch (error) {
+    next(error);
+  }
+};
 
+exports.getOrderbyId = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({ order_id: req.query.order_id });
+    res.status(201).json({ order });
   } catch (error) {
     next(error);
   }

@@ -1,12 +1,16 @@
 const Order = require("../models/orderModel");
+const amqp = require("amqplib");
+const { verifyJwtToken } = require("../utils/token.util");
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
-    const { orderId, restaurantId, status } = req.body;
+    const { order_id, status } = req.body;
+    const token = req.headers["authorization"].split(" ")[1];
+    const vendor_id = verifyJwtToken(token);
+    console.log(vendor_id);
 
-    // Update the order status in the database
     const updatedOrder = await Order.findOneAndUpdate(
-      { _id: orderId },
+      { _id: order_id },
       { $set: { orderStatus: status } },
       { new: true }
     );
@@ -23,11 +27,12 @@ exports.updateOrderStatus = async (req, res, next) => {
 
 exports.getOrders = async (req, res, next) => {
   try {
-    const { restaurantId } = req.query;
+    const token = req.headers["authorization"].split(" ")[1];
+    const vendor_id = verifyJwtToken(token);
 
     const orders = await Order.find({
-      restaurant_id: restaurantId,
-      payment_status: "paid"
+      vendor_id: vendor_id,
+      // payment_status: "paid",
     });
 
     res.status(200).json(orders);
@@ -35,3 +40,50 @@ exports.getOrders = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateConfirmedOrderStatus = async (data) => {
+  try {
+    console.log("Reached here");
+    const order = await Order.updateOne(
+      { _id: data.orderId },
+      { $set: { payment_status: "paid" } }
+    );
+
+    console.log("Order status updated:", order);
+  } catch (error) {
+    console.error("Error updating order status:", error);
+  }
+};
+
+exports.startOrderListener = async () => {
+  const channel = await amqp
+    .connect(
+      "amqps://rbkuvmng:0u5-5pPvLYH0_lt_txFLuMXD4rwgqwaU@puffin.rmq2.cloudamqp.com/rbkuvmng"
+    )
+    .then((conn) => conn.createChannel());
+  const exchangeName = "paymentExchangeDurable1";
+  const routingKey = "paymentSuccess";
+
+  await channel.assertExchange(exchangeName, "direct", {
+    durable: true,
+    reconnect: true,
+    autoDelete: false,
+  });
+  const queue = await channel.assertQueue("", {
+    exclusive: false,
+    durable: true,
+    autoDelete: false,
+    reconnect: true,
+  });
+
+  await channel.bindQueue(queue.queue, exchangeName, routingKey);
+
+  channel.consume(queue.queue, (msg) => {
+    const data = JSON.parse(msg.content.toString());
+    console.log("Received message:", data);
+    exports.updateConfirmedOrderStatus(data);
+    channel.ack(msg);
+  });
+};
+
+exports.startOrderListener();

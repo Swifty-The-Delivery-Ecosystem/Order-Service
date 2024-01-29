@@ -1,10 +1,34 @@
 {
+  "name": "swifty-order-service",
+  "version": "1.0.0",
+  "description": "Order Service for Swifty",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "env-cmd -f .env.development node index.js",
+    "start:staging": "env-cmd -f .env.staging node index.js",
+    "start:production": "env-cmd -f .env.production node index.js",
+    "start:development": "env-cmd -f .env.development node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service.git"
+  },
+  "author": "Tushar Bansal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service/issues"
+  },
+  "homepage": "https://github.com/Swifty-The-Delivery-Ecosystem/Order-Service#readme",
   "dependencies": {
     "amqplib": "^0.10.3",
+    "axios": "^1.6.5",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.3.1",
+    "env-cmd": "^10.1.0",
     "express": "^4.18.2",
-    "mongoose": "^8.0.3",
-    "nodemon": "^3.0.3"
+    "mongoose": "^8.0.3"
   }
 }
