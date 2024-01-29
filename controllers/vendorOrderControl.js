@@ -5,12 +5,9 @@ const { verifyJwtToken } = require("../utils/token.util");
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { order_id, status } = req.body;
-    const token = req.headers["authorization"].split(" ")[1];
-    const vendor_id = verifyJwtToken(token);
-    console.log(vendor_id);
 
     const updatedOrder = await Order.findOneAndUpdate(
-      { _id: order_id },
+      { order_id: order_id },
       { $set: { orderStatus: status } },
       { new: true }
     );
@@ -43,9 +40,8 @@ exports.getOrders = async (req, res, next) => {
 
 exports.updateConfirmedOrderStatus = async (data) => {
   try {
-    console.log("Reached here");
     const order = await Order.updateOne(
-      { _id: data.orderId },
+      { order_id: data.orderId },
       { $set: { payment_status: "paid" } }
     );
 
