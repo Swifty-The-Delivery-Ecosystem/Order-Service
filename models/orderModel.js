@@ -1,78 +1,82 @@
 const mongoose = require("mongoose");
 const OrderItem = require("../models/orderItem");
 
-
 const razorpay_paymentSchema = mongoose.Schema({
   id: {
-    type: String
+    type: String,
   },
   amount: Number,
   amount_paid: Number,
   amount_due: Number,
   currency: String,
   receipt: String,
-  entity: String,  
+  entity: String,
   offer_id: String,
-  status: String, 
-  attempts: Number, 
-  notes: [String], 
-  created_at: Number, 
+  status: String,
+  attempts: Number,
+  notes: [String],
+  created_at: Number,
 });
 
 const orderItemSchema = mongoose.Schema({
-  name:{
-    type:String,
-    required:true
-  },
-  menu_item_id : {
-    type : mongoose.Schema.Types.ObjectId,
+  name: {
+    type: String,
     required: true,
   },
-  quantity : {
-    type : Number
-  }
-})
-
+  menu_item_id: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+  },
+});
 
 const orderSchema = mongoose.Schema({
   vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
   },
-  items:[{
-    type: orderItemSchema, // Cart ID
-    required: true,
-  }],
+  items: [
+    {
+      type: orderItemSchema, // Cart ID
+      required: true,
+    },
+  ],
   payment_status: {
     type: String,
-    enum: ['paid',  'pending', 'failed'],
-    default:'pending'
+    enum: ["paid", "pending", "failed"],
+    default: "pending",
   },
-  order_payment_detail_id:{
-    type: mongoose.Schema.Types.ObjectId
+  order_payment_detail_id: {
+    type: mongoose.Schema.Types.ObjectId,
+  },
+  order_id: {
+    type: String,
+    required: true,
   },
   amount: {
-    type:Number,
-    required:true
+    type: Number,
+    required: true,
   },
-  user_id:{
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true
+    required: true,
   },
-  order_status:{
-    type : String,
-    enum: ['being cooked',  'departed', 'confirmed', 'declined', 'pending'],
-    default:'pending'
+  order_status: {
+    type: String,
+    enum: ["Being Cooked", "Departed", "Confirmed", "Declined", "Pending"],
+    default: "Being Cooked",
   },
-  delivery_boy_id:{
-    type: mongoose.Schema.Types.ObjectId
+  delivery_boy_id: {
+    type: mongoose.Schema.Types.ObjectId,
   },
-  order_instructions:{
-    type:String
+  order_instructions: {
+    type: String,
   },
-  razorpay_payment:{
-    type:razorpay_paymentSchema
-  }
+  razorpay_payment: {
+    type: razorpay_paymentSchema,
+  },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

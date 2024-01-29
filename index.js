@@ -1,7 +1,5 @@
 const express = require("express");
-// const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-// const cors = require("cors");
 require("dotenv").config();
 
 const orderRoutes = require("./routes/orderRoutes");
@@ -10,19 +8,23 @@ const { PORT, MONGODB_URI, NODE_ENV, ORIGIN } = require("./config");
 
 const app = express();
 
-// app.use(bodyParser.json());
-// app.use(
-//   cors({
-//     credentials: true,
-//     origin: ORIGIN,
-//     optionsSuccessStatus: 200,
-//   })
-// );
-
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  // res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.status(200).json({
@@ -39,12 +41,11 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message });
 });
 
-if(NODE_ENV != 'test'){
+if (NODE_ENV != "test") {
   app.listen(PORT, () => {
     console.log(PORT);
     console.log(`Server is running on port ${PORT}`);
   });
 }
-
 
 module.exports = app;
