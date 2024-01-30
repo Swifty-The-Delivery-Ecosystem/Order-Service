@@ -25,7 +25,7 @@ router.post("/user", checkAuth, createOrder);
 
 router.get("/users/:user_id/:active?", getOrderHistory);
 
-router.put("/vendor/order_update", checkVendor, updateOrderStatus);
+router.put("/vendor/order_update/", checkVendor, updateOrderStatus);
 
 router.get("/vendor", checkVendor, getOrders);
 

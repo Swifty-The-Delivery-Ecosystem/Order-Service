@@ -24,11 +24,12 @@ exports.updateOrderStatus = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
+    const orderStatus = req.query.status;
     const vendor_id = verifyJwtToken(token);
 
     const orders = await Order.find({
       vendor_id: vendor_id,
-      order_status: "pending",
+      order_status: orderStatus,
     });
 
     res.status(200).json(orders);
