@@ -29,7 +29,7 @@ exports.getOrders = async (req, res, next) => {
 
     const orders = await Order.find({
       vendor_id: vendor_id,
-      order_status: "Pending",
+      order_status: "pending",
     });
 
     res.status(200).json(orders);
