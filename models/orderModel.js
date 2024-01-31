@@ -65,8 +65,8 @@ const orderSchema = mongoose.Schema({
   },
   order_status: {
     type: String,
-    enum: ["Being Cooked", "Departed", "Confirmed", "Declined", "Pending"],
-    default: "Being Cooked",
+    enum: ["being cooked", "departed", "confirmed", "declined", "pending"],
+    default: "being cooked",
   },
   delivery_boy_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -76,6 +76,12 @@ const orderSchema = mongoose.Schema({
   },
   razorpay_payment: {
     type: razorpay_paymentSchema,
+  },
+  vendor_name: {
+    type: String,
+  },
+  vendor_image: {
+    type: String,
   },
 });
 

@@ -1,4 +1,5 @@
 const Order = require("../models/orderModel");
+const Vendor = require("../models/vendor.model.js");
 const axios = require("axios");
 
 exports.createOrder = async (req, res, next) => {
@@ -13,6 +14,16 @@ exports.createOrder = async (req, res, next) => {
       payment_method,
       order_id,
     } = req.body;
+    const vendor = await Vendor.findById(vendor_id);
+    console.log("vendor", vendor);
+    if (!vendor) {
+      return res.status(404).json({ error: "Vendor not found" });
+    }
+    let vendor_name = vendor.restaurantName;
+    let vendor_image = vendor.images[0];
+
+    console.log(vendor_name);
+    console.log(vendor_image);
     const createOrder = {
       user_id: user_id,
       order_id: order_id,
@@ -25,6 +36,8 @@ exports.createOrder = async (req, res, next) => {
       vendor_id: vendor_id,
       order_instructions: order_instructions,
       payment_method: payment_method,
+      vendor_name: vendor_name,
+      vendor_image: vendor_image,
     };
     const order = await Order.create(createOrder);
 
