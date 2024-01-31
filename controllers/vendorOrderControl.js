@@ -5,7 +5,6 @@ const { verifyJwtToken } = require("../utils/token.util");
 exports.updateOrderStatus = async (req, res, next) => {
   try {
     const { order_id, status } = req.body;
-
     const updatedOrder = await Order.findOneAndUpdate(
       { order_id: order_id },
       { $set: { order_status: status } },
@@ -15,7 +14,7 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (!updatedOrder) {
       return res.status(404).json({ error: "Order not found" });
     }
-
+	
     res.status(200).json(updatedOrder);
   } catch (error) {
     next(error);
@@ -25,11 +24,12 @@ exports.updateOrderStatus = async (req, res, next) => {
 exports.getOrders = async (req, res, next) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];
+    const orderStatus = req.query.status;
     const vendor_id = verifyJwtToken(token);
 
     const orders = await Order.find({
       vendor_id: vendor_id,
-      order_status: "pending",
+      order_status: orderStatus,
     });
 
     res.status(200).json(orders);
