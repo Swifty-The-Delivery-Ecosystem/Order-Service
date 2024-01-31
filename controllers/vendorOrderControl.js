@@ -8,7 +8,7 @@ exports.updateOrderStatus = async (req, res, next) => {
 
     const updatedOrder = await Order.findOneAndUpdate(
       { order_id: order_id },
-      { $set: { orderStatus: status } },
+      { $set: { order_status: status } },
       { new: true }
     );
 
