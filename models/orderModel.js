@@ -32,57 +32,63 @@ const orderItemSchema = mongoose.Schema({
   },
 });
 
-const orderSchema = mongoose.Schema({
-  vendor_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  items: [
-    {
-      type: orderItemSchema, // Cart ID
+const orderSchema = mongoose.Schema(
+  {
+    vendor_id: {
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-  ],
-  payment_status: {
-    type: String,
-    enum: ["paid", "pending", "failed"],
-    default: "pending",
+    items: [
+      {
+        type: orderItemSchema, // Cart ID
+        required: true,
+      },
+    ],
+    payment_status: {
+      type: String,
+      enum: ["paid", "pending", "failed"],
+      default: "pending",
+    },
+    order_payment_detail_id: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    order_id: {
+      type: String,
+      required: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+    },
+    order_status: {
+      type: String,
+      enum: ["being cooked", "departed", "confirmed", "declined", "pending"],
+      default: "being cooked",
+    },
+    delivery_boy_id: {
+      type: mongoose.Schema.Types.ObjectId,
+    },
+    order_instructions: {
+      type: String,
+    },
+    razorpay_payment: {
+      type: razorpay_paymentSchema,
+    },
+    vendor_name: {
+      type: String,
+    },
+    vendor_image: {
+      type: String,
+    },
+    user_location: {
+      type: Number,
+    },
   },
-  order_payment_detail_id: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
-  order_id: {
-    type: String,
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  user_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-  },
-  order_status: {
-    type: String,
-    enum: ["being cooked", "departed", "confirmed", "declined", "pending"],
-    default: "being cooked",
-  },
-  delivery_boy_id: {
-    type: mongoose.Schema.Types.ObjectId,
-  },
-  order_instructions: {
-    type: String,
-  },
-  razorpay_payment: {
-    type: razorpay_paymentSchema,
-  },
-  vendor_name: {
-    type: String,
-  },
-  vendor_image: {
-    type: String,
-  },
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Order", orderSchema);

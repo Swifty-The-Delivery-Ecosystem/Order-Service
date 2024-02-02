@@ -4,7 +4,6 @@ const axios = require("axios");
 
 exports.createOrder = async (req, res, next) => {
   try {
-    console.log("Reached here", req.body);
     const {
       user_id,
       items,
@@ -13,17 +12,16 @@ exports.createOrder = async (req, res, next) => {
       order_instructions,
       payment_method,
       order_id,
+      user_location,
     } = req.body;
     const vendor = await Vendor.findById(vendor_id);
-    console.log("vendor", vendor);
+
     if (!vendor) {
       return res.status(404).json({ error: "Vendor not found" });
     }
     let vendor_name = vendor.restaurantName;
     let vendor_image = vendor.images[0];
 
-    console.log(vendor_name);
-    console.log(vendor_image);
     const createOrder = {
       user_id: user_id,
       order_id: order_id,
@@ -38,6 +36,7 @@ exports.createOrder = async (req, res, next) => {
       payment_method: payment_method,
       vendor_name: vendor_name,
       vendor_image: vendor_image,
+      user_location: user_location,
     };
     const order = await Order.create(createOrder);
 
@@ -84,7 +83,6 @@ exports.createOrder = async (req, res, next) => {
     await order.save();
     res.status(201).json(order);
   } catch (error) {
-    console.log("first");
     next(error);
   }
 };

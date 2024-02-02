@@ -26,7 +26,7 @@ const vendorSchema = new Schema(
     },
     location: {
       type: Number,
-      required: true, // Index according to the list [Mess, GH, Acad, Delta]
+      required: true,
     },
     supported_location: [Number],
     isActive: {
