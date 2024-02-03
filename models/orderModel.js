@@ -67,7 +67,7 @@ const orderSchema = mongoose.Schema(
     order_status: {
       type: String,
       enum: ["being cooked", "departed", "confirmed", "declined", "pending"],
-      default: "being cooked",
+      default: "pending",
     },
     delivery_boy_id: {
       type: mongoose.Schema.Types.ObjectId,
