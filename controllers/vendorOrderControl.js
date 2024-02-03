@@ -20,7 +20,24 @@ exports.updateOrderStatus = async (req, res, next) => {
     next(error);
   }
 };
+exports.updateDeliveryPartner = async (req, res, next) => {
+  try {
+    const { order_id, delivery_partner_id } = req.body;
+    const updatedOrder = await Order.findOneAndUpdate(
+      { order_id: order_id },
+      { $set: { delivery_boy_id: delivery_partner_id } },
+      { new: true }
+    );
 
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json(updatedOrder);
+  } catch (error) {
+    next(error);
+  }
+};
 exports.getOrders = async (req, res, next) => {
   try {
     const token = req.headers["authorization"].split(" ")[1];

@@ -10,15 +10,17 @@ const {
   updateOrderStatus,
   getOrders,
   updateConfirmedOrderStatus,
+  updateDeliveryPartner,
 } = require("../controllers/vendorOrderControl");
 
 const {
-  orderStatusDelivered
-} = require("../controllers/deliveryOrderControl")
+  orderStatusDelivered,
+  getOrdersDeliveryBoy,
+} = require("../controllers/deliveryOrderControl");
 const router = express.Router();
 const checkAuth = require("../middlewares/checkAuth");
 const checkVendor = require("../middlewares/checkVendor");
-const checkDeliveryPartner = require("../middlewares/checkDeliveryPartner")
+const checkDeliveryPartner = require("../middlewares/checkDeliveryPartner");
 // Add middleware to all the apis below.
 
 router.post("/user", checkAuth, createOrder);
@@ -31,8 +33,12 @@ router.get("/vendor", checkVendor, getOrders);
 
 router.put("/orderstatus", checkVendor, updateConfirmedOrderStatus);
 
-router.put("/delivery_status", checkDeliveryPartner, orderStatusDelivered)
+router.put("/delivery_status", checkDeliveryPartner, orderStatusDelivered);
+
+router.put("/delivery_boy", checkVendor, updateDeliveryPartner);
 
 router.get("/order", getOrderbyId);
+
+router.get("/delivery_boy/orders/:delivery_boy_id", checkDeliveryPartner, getOrdersDeliveryBoy);
 
 module.exports = router;
