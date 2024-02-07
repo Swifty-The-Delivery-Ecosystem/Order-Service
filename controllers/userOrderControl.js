@@ -1,6 +1,9 @@
 const Order = require("../models/orderModel");
 const Vendor = require("../models/vendor.model.js");
 const axios = require("axios");
+const { EventEmitter } = require("events");
+
+const eventEmitter = new EventEmitter();
 
 exports.createOrder = async (req, res, next) => {
   try {
@@ -39,6 +42,8 @@ exports.createOrder = async (req, res, next) => {
       user_location: user_location,
     };
     const order = await Order.create(createOrder);
+    console.log("saved success")
+    // eventEmitter.emit(`newOrder.${vendor_id}`, order);
 
     const razorpayAmount = amount * 100;
 
@@ -86,6 +91,24 @@ exports.createOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+// exports.listenForNewOrders = (req, res) => {
+//   const vendorId = req.params.vendorId;
+//   res.setHeader("Content-Type", "text/event-stream");
+//   res.setHeader("Cache-Control", "no-cache");
+//   res.setHeader("Connection", "keep-alive");
+
+//   const listener = (order) => {
+//     res.write(`data: ${JSON.stringify(order)}\n\n`);
+//   };
+//   console.log("done");
+//   eventEmitter.on(`newOrder.${vendorId}`, listener);
+
+//   // Clean up when client disconnects
+//   req.on("close", () => {
+//     eventEmitter.off(`newOrder.${vendorId}`, listener);
+//   });
+// };
 
 exports.getOrderHistory = async (req, res, next) => {
   try {
