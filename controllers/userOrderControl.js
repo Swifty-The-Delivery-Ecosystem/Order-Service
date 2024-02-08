@@ -17,7 +17,9 @@ exports.createOrder = async (req, res, next) => {
       order_id,
       user_location,
     } = req.body;
+    console.log(vendor_id);
     const vendor = await Vendor.findById(vendor_id);
+    console.log("hello", vendor);
 
     if (!vendor) {
       return res.status(404).json({ error: "Vendor not found" });
@@ -42,8 +44,8 @@ exports.createOrder = async (req, res, next) => {
       user_location: user_location,
     };
     const order = await Order.create(createOrder);
-    console.log("saved success")
-    // eventEmitter.emit(`newOrder.${vendor_id}`, order);
+    console.log("saved");
+    eventEmitter.emit(`newOrder.${vendor_id}`, order);
 
     const razorpayAmount = amount * 100;
 
@@ -92,23 +94,23 @@ exports.createOrder = async (req, res, next) => {
   }
 };
 
-// exports.listenForNewOrders = (req, res) => {
-//   const vendorId = req.params.vendorId;
-//   res.setHeader("Content-Type", "text/event-stream");
-//   res.setHeader("Cache-Control", "no-cache");
-//   res.setHeader("Connection", "keep-alive");
+exports.listenForNewOrders = (req, res) => {
+  const vendorId = req.params.vendorId;
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
 
-//   const listener = (order) => {
-//     res.write(`data: ${JSON.stringify(order)}\n\n`);
-//   };
-//   console.log("done");
-//   eventEmitter.on(`newOrder.${vendorId}`, listener);
+  const listener = (order) => {
+    res.write(`data: ${JSON.stringify(order)}\n\n`);
+  };
+  console.log("done");
+  eventEmitter.on(`newOrder.${vendorId}`, listener);
 
-//   // Clean up when client disconnects
-//   req.on("close", () => {
-//     eventEmitter.off(`newOrder.${vendorId}`, listener);
-//   });
-// };
+  // Clean up when client disconnects
+  req.on("close", () => {
+    eventEmitter.off(`newOrder.${vendorId}`, listener);
+  });
+};
 
 exports.getOrderHistory = async (req, res, next) => {
   try {

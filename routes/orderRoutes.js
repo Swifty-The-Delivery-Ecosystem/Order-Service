@@ -39,6 +39,10 @@ router.put("/delivery_boy", checkVendor, updateDeliveryPartner);
 
 router.get("/order", getOrderbyId);
 
-router.get("/delivery_boy/orders/:delivery_boy_id", checkDeliveryPartner, getOrdersDeliveryBoy);
+router.get(
+  "/delivery_boy/orders/:delivery_boy_id",
+  checkDeliveryPartner,
+  getOrdersDeliveryBoy
+);
 
 module.exports = router;
