@@ -35,7 +35,6 @@ module.exports = async (req, res, next) => {
     }
 
     const user = await User.findById(userId);
-    console.log("jn3dnqw", user);
     if (!user) {
       next({ status: 404, message: USER_NOT_FOUND_ERR });
       return;

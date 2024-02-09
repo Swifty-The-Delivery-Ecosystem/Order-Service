@@ -41,6 +41,8 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message });
 });
 
+console.log(MONGODB_URI);
+
 if (NODE_ENV != "test") {
   app.listen(PORT, () => {
     console.log(PORT);

@@ -4,6 +4,7 @@ const {
   createOrder,
   getOrderHistory,
   getOrderbyId,
+  listenForNewOrders,
 } = require("../controllers/userOrderControl");
 
 const {
@@ -38,6 +39,8 @@ router.put("/delivery_status", checkDeliveryPartner, orderStatusDelivered);
 router.put("/delivery_boy", checkVendor, updateDeliveryPartner);
 
 router.get("/order", getOrderbyId);
+
+router.get("/events/:vendorId", listenForNewOrders);
 
 router.get(
   "/delivery_boy/orders/:delivery_boy_id",

@@ -19,7 +19,6 @@ exports.createOrder = async (req, res, next) => {
     } = req.body;
     console.log(vendor_id);
     const vendor = await Vendor.findById(vendor_id);
-    console.log("hello", vendor);
 
     if (!vendor) {
       return res.status(404).json({ error: "Vendor not found" });
@@ -44,48 +43,9 @@ exports.createOrder = async (req, res, next) => {
       user_location: user_location,
     };
     const order = await Order.create(createOrder);
-    console.log("saved");
     eventEmitter.emit(`newOrder.${vendor_id}`, order);
 
     const razorpayAmount = amount * 100;
-
-    // if (payment_method === "online") {
-    //   try {
-    //     const paymentResponse = await axios.post(
-    //       "http://localhost:5000/payment",
-    //       {
-    //         amount: razorpayAmount,
-    //       }
-    //     );
-
-    //     const razorpayPaymentData = paymentResponse.data;
-    //     if (paymentResponse.status === 200) {
-    //       order.razorpay_payment = {
-    //         id: razorpayPaymentData.id,
-    //         amount: razorpayPaymentData.amount,
-    //         amount_paid: razorpayPaymentData.amount_paid,
-    //         amount_due: razorpayPaymentData.amount_due,
-    //         currency: razorpayPaymentData.currency,
-    //         receipt: razorpayPaymentData.receipt,
-    //         entity: razorpayPaymentData.entity,
-    //         offer_id: razorpayPaymentData.offer_id,
-    //         status: razorpayPaymentData.status,
-    //         attempts: razorpayPaymentData.attempts,
-    //         notes: razorpayPaymentData.notes,
-    //         created_at: razorpayPaymentData.created_at,
-    //       };
-    //       await order.save();
-    //       return res.status(201).json(order);
-    //     }
-
-    //     return res.status(400).json({ error: "Order processing failed" });
-    //   } catch (error) {
-    //     // Handle errors that occurred during the payment processing request
-    //     console.error("Error processing payment:", error);
-
-    //     return res.status(500).json({ error: "Payment processing failed" });
-    //   }
-    // }
 
     await order.save();
     res.status(201).json(order);
@@ -96,12 +56,14 @@ exports.createOrder = async (req, res, next) => {
 
 exports.listenForNewOrders = (req, res) => {
   const vendorId = req.params.vendorId;
+  console.log("first", vendorId);
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
   const listener = (order) => {
-    res.write(`data: ${JSON.stringify(order)}\n\n`);
+    console.log(order);
+    return res.write(`data: ${JSON.stringify(order)}\n\n`);
   };
   console.log("done");
   eventEmitter.on(`newOrder.${vendorId}`, listener);
