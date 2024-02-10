@@ -53,7 +53,6 @@ exports.createOrder = async (req, res, next) => {
     next(error);
   }
 };
-
 exports.listenForNewOrders = (req, res) => {
   const vendorId = req.params.vendorId;
   console.log("first", vendorId);
@@ -63,17 +62,23 @@ exports.listenForNewOrders = (req, res) => {
 
   const listener = (order) => {
     console.log(order);
-    return res.write(`data: ${JSON.stringify(order)}\n\n`);
+    res.write(`data: ${JSON.stringify(order)}\n\n`); // Send the new order data
   };
-  const timeout = setTimeout(() => {
-    console.log("dummy sent");
-    res.status(200);
-  }, 2000);
 
-  console.log("done");
   eventEmitter.on(`newOrder.${vendorId}`, listener);
 
+  let timeoutId;
+
+  const sendDummyResponse = () => {
+    console.log("Sending dummy response");
+    res.write(`data: dummy\n\n`); // Sending a dummy data
+  };
+
+  timeoutId = setInterval(sendDummyResponse, 2000); // Send the dummy response periodically
+
+  // Clean up when client disconnects
   req.on("close", () => {
+    clearInterval(timeoutId); // Clear the interval
     eventEmitter.off(`newOrder.${vendorId}`, listener);
   });
 };
