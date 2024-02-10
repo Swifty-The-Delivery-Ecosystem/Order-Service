@@ -75,7 +75,7 @@ exports.listenForNewOrders = (req, res) => {
     res.write(`data: dummy\n\n`); // Sending a dummy data
   };
 
-  timeoutId = setInterval(sendDummyResponse, 2000); // Send the dummy response periodically
+  timeoutId = setInterval(sendDummyResponse, 900); // Send the dummy response periodically
 
   // Clean up when client disconnects
   req.on("close", () => {
