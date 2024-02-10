@@ -71,6 +71,7 @@ exports.listenForNewOrders = (req, res) => {
 
   const sendDummyResponse = () => {
     console.log("Sending dummy response");
+    res.status(200);
     res.write(`data: dummy\n\n`); // Sending a dummy data
   };
 
