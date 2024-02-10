@@ -65,11 +65,16 @@ exports.listenForNewOrders = (req, res) => {
     console.log(order);
     return res.write(`data: ${JSON.stringify(order)}\n\n`);
   };
+  const timeout = setTimeout(() => {
+    console.log("dummy sent");
+    res.status(200).end();
+  }, 2000);
   console.log("done");
   eventEmitter.on(`newOrder.${vendorId}`, listener);
 
   // Clean up when client disconnects
   req.on("close", () => {
+    clearTimeout(timeout);
     eventEmitter.off(`newOrder.${vendorId}`, listener);
   });
 };
