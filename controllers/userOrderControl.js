@@ -53,6 +53,7 @@ exports.createOrder = async (req, res, next) => {
     next(error);
   }
 };
+
 exports.listenForNewOrders = (req, res) => {
   const vendorId = req.params.vendorId;
   console.log("first", vendorId);
@@ -71,11 +72,10 @@ exports.listenForNewOrders = (req, res) => {
 
   const sendDummyResponse = () => {
     console.log("Sending dummy response");
-    res.status(200);
     res.write(`data: dummy\n\n`); // Sending a dummy data
   };
 
-  timeoutId = setInterval(sendDummyResponse, 900); // Send the dummy response periodically
+  timeoutId = setInterval(sendDummyResponse, 2000); // Send the dummy response periodically
 
   // Clean up when client disconnects
   req.on("close", () => {
