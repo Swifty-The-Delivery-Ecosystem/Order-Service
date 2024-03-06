@@ -64,6 +64,8 @@ const io = new Server(9000, {
     origin: "*",
   },
   pingTimeout: 60000,
+  addTrailingSlash: false,
+  // path: "/api/socket",
 });
 
 io.on("connection", (socket) => {
