@@ -59,7 +59,7 @@ if (NODE_ENV != "test") {
 //   pingTimeout: 60000,
 // });
 
-const io = new Server(server, {
+const io = new Server(9000, {
   cors: {
     origin: "*",
   },
