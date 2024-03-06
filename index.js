@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+var http = require("http");
+const { Server } = require("socket.io");
 
 const orderRoutes = require("./routes/orderRoutes");
 
@@ -41,16 +43,23 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message });
 });
 
-console.log(MONGODB_URI);
-let server;
+const server = http.createServer(app);
+// let server;
 if (NODE_ENV != "test") {
-  server = app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(PORT);
     console.log(`Server is running on port ${PORT}`);
   });
 }
 
-const io = require("socket.io")(server, {
+// const io = require("socket.io")(server, {
+//   cors: {
+//     origin: "*",
+//   },
+//   pingTimeout: 60000,
+// });
+
+const io = new Server(server, {
   cors: {
     origin: "*",
   },
@@ -72,6 +81,5 @@ io.on("connection", (socket) => {
     console.log("A user disconnected");
   });
 });
-
 
 module.exports = app;
