@@ -17,7 +17,7 @@ exports.createOrder = async (req, res, next) => {
       order_id,
       user_location,
     } = req.body;
-    console.log(vendor_id);
+    console.log("vendor_id" + vendor_id);
     const vendor = await Vendor.findById(vendor_id);
 
     if (!vendor) {
@@ -65,7 +65,7 @@ exports.listenForNewOrders = (req, res) => {
     console.log(order);
     return res.write(`data: ${JSON.stringify(order)}\n\n`);
   };
-  
+
   console.log("done");
   eventEmitter.on(`newOrder.${vendorId}`, listener);
 

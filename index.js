@@ -42,12 +42,36 @@ app.use((err, req, res, next) => {
 });
 
 console.log(MONGODB_URI);
-
+let server;
 if (NODE_ENV != "test") {
-  app.listen(PORT, () => {
+  server = app.listen(PORT, () => {
     console.log(PORT);
     console.log(`Server is running on port ${PORT}`);
   });
 }
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+  pingTimeout: 60000,
+});
+
+io.on("connection", (socket) => {
+  console.log("A user connected");
+
+  socket.on("newOrder", (orderDetails) => {
+    // Handle new order logic
+    console.log("New order received:", orderDetails);
+
+    // Broadcast new order to vendor dashboard
+    io.emit("newOrder", orderDetails);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected");
+  });
+});
+
 
 module.exports = app;
