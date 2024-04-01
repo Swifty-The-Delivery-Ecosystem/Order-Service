@@ -18,7 +18,7 @@ jobs:
 
       - name: Create .env.development file
         run: |
-          echo "PORT=3000" >> .env.development
+          echo "PORT=${{ secrets.PORT }}" >> .env.development
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env.development
           echo "NODE_ENV=development" >> .env.development
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.development
