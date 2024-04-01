@@ -1,0 +1,15 @@
+rules:
+  - name: "Commit message length"
+    description: "Ensure commit messages are not too long"
+    pattern: ".{1,50}"
+    error_message: "Commit messages should be between 1 and 50 characters long"
+
+  - name: "Capitalized subject"
+    description: "Ensure commit message subject starts with a capital letter"
+    pattern: "^[A-Z].*"
+    error_message: "Commit message subject should start with a capital letter"
+
+  - name: "Imperative mood"
+    description: "Ensure commit message subject is in imperative mood"
+    pattern: "(^fix|^update|^add|^remove|^refactor|^implement|^merge|^resolve|^enhance|^correct|^optimize|^adjust|^improve|^change|^test|^doc|^style|^clean)(s|es|ed|ing)?\\b"
+    error_message: "Commit message subject should use imperative mood"
