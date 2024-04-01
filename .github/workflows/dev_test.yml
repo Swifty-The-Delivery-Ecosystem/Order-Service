@@ -20,15 +20,24 @@ jobs:
         run: npm install
 
       - name: Create .env.development file
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NODE_ENV: development
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ORIGIN: ${{ secrets.ORIGIN }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          TWILIO_SERVICE_SID: ${{ secrets.TWILIO_SERVICE_SID }}
         run: |
-          echo "PORT=${{ secrets.PORT }}" >> .env.development
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env.development
+          echo "PORT=$PORT" >> .env.development
+          echo "MONGODB_URI=$MONGODB_URI" >> .env.development
           echo "NODE_ENV=development" >> .env.development
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.development
-          echo "ORIGIN=${{ secrets.ORIGIN }}" >> .env.development
-          echo "TWILIO_ACCOUNT_SID=${{ secrets.TWILIO_ACCOUNT_SID }}" >> .env.development
-          echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> .env.development
-          echo "TWILIO_SERVICE_SID=${{ secrets.TWILIO_SERVICE_SID }}" >> .env.development
+          echo "JWT_SECRET=$JWT_SECRET" >> .env.development
+          echo "ORIGIN=$ORIGIN" >> .env.development
+          echo "TWILIO_ACCOUNT_SID=$TWILIO_ACCOUNT_SID" >> .env.development
+          echo "TWILIO_AUTH_TOKEN=$TWILIO_AUTH_TOKEN" >> .env.development
+          echo "TWILIO_SERVICE_SID=$TWILIO_SERVICE_SID" >> .env.development
 
       - name: Run Jest tests
         run: npm test
