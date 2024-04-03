@@ -100,8 +100,8 @@ exports.getRecommendation = async (req, res, next) => {
     const userID = req.params.user_id;
     let orders = await Order.find({ user_id: userID })
       .sort({ createdAt: -1 })
-      .limit(5); // Get the last 5 orders
-    let recommendedItems = [];
+      .limit(2); // Get the last 5 orders
+    let recommendedItemsSet = new Set();
 
     // Fetch recommendations for default items
     const defaultItems = ["Samosa", "Pav Bhaji"];
@@ -118,7 +118,7 @@ exports.getRecommendation = async (req, res, next) => {
         for (let recipe of recommendedRecipes) {
           const dbItem = await MenuItem.findOne({ name: recipe });
           if (dbItem) {
-            recommendedItems.push(dbItem);
+            recommendedItemsSet.add(JSON.stringify(dbItem)); 
           }
         }
       } catch (e) {
@@ -143,13 +143,15 @@ exports.getRecommendation = async (req, res, next) => {
         for (let recipe of recommendedRecipes) {
           const dbItem = await MenuItem.findOne({ name: recipe });
           if (dbItem) {
-            recommendedItems.push(dbItem);
+            recommendedItemsSet.add(JSON.stringify(dbItem));
           }
         }
       } catch (e) {
         console.log(e);
       }
     }
+    const recommendedItems = Array.from(recommendedItemsSet).map(item => JSON.parse(item));
+
 
     res.json({ recommendedItems });
   } catch (error) {
