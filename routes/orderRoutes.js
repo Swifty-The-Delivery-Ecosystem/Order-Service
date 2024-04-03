@@ -5,6 +5,7 @@ const {
   getOrderHistory,
   getOrderbyId,
   listenForNewOrders,
+  getRecommendation,
 } = require("../controllers/userOrderControl");
 
 const {
@@ -41,6 +42,8 @@ router.put("/delivery_boy", checkVendor, updateDeliveryPartner);
 router.get("/order", getOrderbyId);
 
 router.get("/events/:vendorId", listenForNewOrders);
+
+router.get("/user/recommend/:user_id", checkAuth, getRecommendation);
 
 router.get(
   "/delivery_boy/orders/:delivery_boy_id",
