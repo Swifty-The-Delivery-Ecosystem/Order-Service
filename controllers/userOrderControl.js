@@ -1,6 +1,7 @@
 const Order = require("../models/orderModel");
 const Vendor = require("../models/vendor.model.js");
 const axios = require("axios");
+const MenuItem = require("../models/menuItem.model.js");
 const { EventEmitter } = require("events");
 
 const eventEmitter = new EventEmitter();
@@ -93,6 +94,74 @@ exports.getOrderHistory = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getRecommendation = async (req, res, next) => {
+  try {
+    const userID = req.params.user_id;
+    let orders = await Order.find({ user_id: userID })
+      .sort({ createdAt: -1 })
+      .limit(5); // Get the last 5 orders
+    let recommendedItems = [];
+
+    // Fetch recommendations for default items
+    const defaultItems = ["Samosa", "Pav Bhaji"];
+    for (let itemName of defaultItems) {
+      let foodItemTitleCase = toTitleCase(itemName);
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        console.log(response);
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        // Check if recommended items exist in the database
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItems.push(dbItem);
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    // Process orders for additional recommendations
+    for (let order of orders) {
+      const item = order.items[0]; // Assuming you want the first item of each order
+      const itemName = item.name;
+      let foodItemTitleCase = toTitleCase(itemName); // Convert the food item name to Title Case
+
+      // Make API call to get recommendations
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        // Check if recommended items exist in the database
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItems.push(dbItem);
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    res.json({ recommendedItems });
+  } catch (error) {
+    next(error);
+  }
+};
+
+function toTitleCase(str) {
+  return str.replace(/\w\S*/g, function (txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
 
 exports.getOrderbyId = async (req, res, next) => {
   try {

@@ -46,7 +46,7 @@ app.use((err, req, res, next) => {
 const server = http.createServer(app);
 // let server;
 if (NODE_ENV != "test") {
-  server.listen(PORT, () => {
+  server.listen(8000, () => {
     console.log(PORT);
     console.log(`Server is running on port ${PORT}`);
   });
