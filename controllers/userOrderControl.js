@@ -100,29 +100,17 @@ exports.getRecommendation = async (req, res, next) => {
     const userID = req.params.user_id;
     let orders = await Order.find({ user_id: userID })
       .sort({ createdAt: -1 })
-      .limit(2); // Get the last 5 orders
-    let recommendedItemsSet = new Set();
+      .limit(2);
+    // Get the last 2 orders
 
+    let recommendedItemsSet = new Set();
     // Fetch recommendations for default items
     const defaultItems = ["Samosa", "Pav Bhaji"];
-    for (let itemName of defaultItems) {
-      let foodItemTitleCase = toTitleCase(itemName);
-      try {
-        const response = await axios.get(
-          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
-        );
-        console.log(response);
-        const recommendedRecipes = response.data.recommended_recipes;
-
-        // Check if recommended items exist in the database
-        for (let recipe of recommendedRecipes) {
-          const dbItem = await MenuItem.findOne({ name: recipe });
-          if (dbItem) {
-            recommendedItemsSet.add(JSON.stringify(dbItem)); 
-          }
-        }
-      } catch (e) {
-        console.log(e);
+    const recommendedRecipes = await fetchRecommendations(defaultItems);
+    for (let recipe of recommendedRecipes) {
+      const dbItem = await MenuItem.findOne({ name: recipe });
+      if (dbItem) {
+        recommendedItemsSet.add(JSON.stringify(dbItem));
       }
     }
 
@@ -130,34 +118,28 @@ exports.getRecommendation = async (req, res, next) => {
     for (let order of orders) {
       const item = order.items[0]; // Assuming you want the first item of each order
       const itemName = item.name;
-      let foodItemTitleCase = toTitleCase(itemName); // Convert the food item name to Title Case
-
-      // Make API call to get recommendations
-      try {
-        const response = await axios.get(
-          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
-        );
-        const recommendedRecipes = response.data.recommended_recipes;
-
-        // Check if recommended items exist in the database
-        for (let recipe of recommendedRecipes) {
-          const dbItem = await MenuItem.findOne({ name: recipe });
-          if (dbItem) {
-            recommendedItemsSet.add(JSON.stringify(dbItem));
-          }
+      const recommendedRecipes = await fetchRecommendations([toTitleCase(itemName)]);
+      for (let recipe of recommendedRecipes) {
+        const dbItem = await MenuItem.findOne({ name: recipe });
+        if (dbItem) {
+          recommendedItemsSet.add(JSON.stringify(dbItem));
         }
-      } catch (e) {
-        console.log(e);
       }
     }
-    const recommendedItems = Array.from(recommendedItemsSet).map(item => JSON.parse(item));
 
-
+    const recommendedItems = Array.from(recommendedItemsSet).map(item =>
+      JSON.parse(item)
+    );
     res.json({ recommendedItems });
   } catch (error) {
     next(error);
   }
 };
+
+async function fetchRecommendations(foodItems) {
+  const response = await axios.post("https://food-recommendation-yqpc.onrender.com/recommend", foodItems);
+  return response.data.recommended_food_items;
+}
 
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
