@@ -99,12 +99,12 @@ exports.getRecommendation = async (req, res, next) => {
     const userID = req.params.user_id;
     let orders = await Order.find({ user_id: userID })
       .sort({ createdAt: -1 })
-      .limit(5); // Get the last 5 orders
+      .limit(2); // Get the last 5 orders
     let recommendedItemsSet = new Set();
 
-    // Fetch recommendations for default items in parallel
+    // Fetch recommendations for default items
     const defaultItems = ["Samosa", "Pav Bhaji"];
-    const defaultRecommendationsPromises = defaultItems.map(async (itemName) => {
+    for (let itemName of defaultItems) {
       let foodItemTitleCase = toTitleCase(itemName);
       try {
         const response = await axios.get(
@@ -123,10 +123,10 @@ exports.getRecommendation = async (req, res, next) => {
       } catch (e) {
         console.log(e);
       }
-    });
+    }
 
-    // Process orders for additional recommendations in parallel
-    const ordersRecommendationsPromises = orders.map(async (order) => {
+    // Process orders for additional recommendations
+    for (let order of orders) {
       const item = order.items[0]; // Assuming you want the first item of each order
       const itemName = item.name;
       let foodItemTitleCase = toTitleCase(itemName); // Convert the food item name to Title Case
@@ -148,12 +148,76 @@ exports.getRecommendation = async (req, res, next) => {
       } catch (e) {
         console.log(e);
       }
+    }
+    const recommendedItems = Array.from(recommendedItemsSet).map((item) =>
+      JSON.parse(item)
+    );
+
+    res.json({ recommendedItems });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getRecommendationv2 = async (req, res, next) => {
+  try {
+    const userID = req.params.user_id;
+    let orders = await Order.find({ user_id: userID })
+      .sort({ createdAt: -1 })
+      .limit(5); 
+    let recommendedItemsSet = new Set();
+
+    
+    const defaultItems = ["Samosa", "Pav Bhaji"];
+    const defaultRecommendationsPromises = defaultItems.map(async (itemName) => {
+      let foodItemTitleCase = toTitleCase(itemName);
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        console.log(response);
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItemsSet.add(JSON.stringify(dbItem));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
     });
 
-    // Execute default recommendations and orders recommendations in parallel, but don't wait for default recommendations to complete
+    
+    const ordersRecommendationsPromises = orders.map(async (order) => {
+      const item = order.items[0]; 
+      const itemName = item.name;
+      let foodItemTitleCase = toTitleCase(itemName); 
+
+      
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItemsSet.add(JSON.stringify(dbItem));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    
     await Promise.all(ordersRecommendationsPromises);
 
-    // After orders recommendations are complete, wait for default recommendations to finish
+    
     await Promise.all(defaultRecommendationsPromises);
 
     const recommendedItems = Array.from(recommendedItemsSet).map((item) =>
@@ -165,8 +229,6 @@ exports.getRecommendation = async (req, res, next) => {
     next(error);
   }
 };
-
-
 
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
