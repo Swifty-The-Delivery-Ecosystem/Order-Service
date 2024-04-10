@@ -159,6 +159,77 @@ exports.getRecommendation = async (req, res, next) => {
   }
 };
 
+exports.getRecommendationv2 = async (req, res, next) => {
+  try {
+    const userID = req.params.user_id;
+    let orders = await Order.find({ user_id: userID })
+      .sort({ createdAt: -1 })
+      .limit(5); 
+    let recommendedItemsSet = new Set();
+
+    
+    const defaultItems = ["Samosa", "Pav Bhaji"];
+    const defaultRecommendationsPromises = defaultItems.map(async (itemName) => {
+      let foodItemTitleCase = toTitleCase(itemName);
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        console.log(response);
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItemsSet.add(JSON.stringify(dbItem));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    
+    const ordersRecommendationsPromises = orders.map(async (order) => {
+      const item = order.items[0]; 
+      const itemName = item.name;
+      let foodItemTitleCase = toTitleCase(itemName); 
+
+      
+      try {
+        const response = await axios.get(
+          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
+        );
+        const recommendedRecipes = response.data.recommended_recipes;
+
+        for (let recipe of recommendedRecipes) {
+          const dbItem = await MenuItem.findOne({ name: recipe });
+          if (dbItem) {
+            recommendedItemsSet.add(JSON.stringify(dbItem));
+          }
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    
+    await Promise.all(ordersRecommendationsPromises);
+
+    
+    await Promise.all(defaultRecommendationsPromises);
+
+    const recommendedItems = Array.from(recommendedItemsSet).map((item) =>
+      JSON.parse(item)
+    );
+
+    res.json({ recommendedItems });
+  } catch (error) {
+    next(error);
+  }
+};
+
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
