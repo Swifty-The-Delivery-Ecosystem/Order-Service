@@ -1,6 +1,10 @@
 const Order = require("../models/orderModel");
 const amqp = require("amqplib");
 const { verifyJwtToken } = require("../utils/token.util");
+const Ably = require("ably");
+const DeliveryPartner = require("../models/deliveryPartner.model");
+
+const client = new Ably.Rest(process.env.ABLY_API_KEY);
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
@@ -14,7 +18,10 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (!updatedOrder) {
       return res.status(404).json({ error: "Order not found" });
     }
-	
+
+    const channel = client.channels.get("orderstatus");
+    channel.publish("orderstatus", "Your order is " + status + " by Vendor.");
+
     res.status(200).json(updatedOrder);
   } catch (error) {
     next(error);
@@ -32,6 +39,14 @@ exports.updateDeliveryPartner = async (req, res, next) => {
     if (!updatedOrder) {
       return res.status(404).json({ error: "Order not found" });
     }
+
+    const delivery_boy = await DeliveryPartner.findById(delivery_partner_id);
+    const delivery_boy_name = delivery_boy.name;
+    const channel = client.channels.get("orderstatus");
+    channel.publish(
+      "orderstatus",
+      "Your order is picked up by " + delivery_boy_name
+    );
 
     res.status(200).json(updatedOrder);
   } catch (error) {

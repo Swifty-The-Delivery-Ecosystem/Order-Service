@@ -59,29 +59,29 @@ if (NODE_ENV != "test") {
 //   pingTimeout: 60000,
 // });
 
-const io = new Server(9000, {
-  cors: {
-    origin: "*",
-  },
-  pingTimeout: 60000,
-  addTrailingSlash: false,
-  // path: "/api/socket",
-});
+// const io = new Server(9000, {
+//   cors: {
+//     origin: "*",
+//   },
+//   pingTimeout: 60000,
+//   addTrailingSlash: false,
+//   // path: "/api/socket",
+// });
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
+// io.on("connection", (socket) => {
+//   console.log("A user connected");
 
-  socket.on("newOrder", (orderDetails) => {
-    // Handle new order logic
-    console.log("New order received:", orderDetails);
+//   socket.on("newOrder", (orderDetails) => {
+//     // Handle new order logic
+//     console.log("New order received:", orderDetails);
 
-    // Broadcast new order to vendor dashboard
-    io.emit("newOrder", orderDetails);
-  });
+//     // Broadcast new order to vendor dashboard
+//     io.emit("newOrder", orderDetails);
+//   });
 
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log("A user disconnected");
+//   });
+// });
 
 module.exports = app;
