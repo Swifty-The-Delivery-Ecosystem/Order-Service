@@ -45,6 +45,8 @@ router.get("/events/:vendorId", listenForNewOrders);
 
 router.get("/user/recommend/:user_id", checkAuth, getRecommendation);
 
+router.get("/user/recommendv2/:user_id", checkAuth, getRecommendation);
+
 router.get(
   "/delivery_boy/orders/:delivery_boy_id",
   checkDeliveryPartner,
