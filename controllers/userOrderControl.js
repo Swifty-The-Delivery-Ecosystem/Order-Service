@@ -162,64 +162,42 @@ exports.getRecommendation = async (req, res, next) => {
 exports.getRecommendationv2 = async (req, res, next) => {
   try {
     const userID = req.params.user_id;
+    // Fetch the last 5 orders of the user
     let orders = await Order.find({ user_id: userID })
       .sort({ createdAt: -1 })
-      .limit(5); 
+      .limit(5);
+
+    // Use a set to collect recommended items without duplicates
     let recommendedItemsSet = new Set();
 
-    
-    const defaultItems = ["Samosa", "Pav Bhaji"];
-    const defaultRecommendationsPromises = defaultItems.map(async (itemName) => {
-      let foodItemTitleCase = toTitleCase(itemName);
-      try {
-        const response = await axios.get(
-          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
-        );
-        console.log(response);
-        const recommendedRecipes = response.data.recommended_recipes;
+    // Extract item names from recent orders (up to 3 items)
+    const recentItemNames = orders
+      .flatMap(order => order.items.map(item => item.name))
+      .slice(0, 3);
+      // If we have less than 3 items, add default items to meet the minimum
+      const foodItems = recentItemNames.length >= 3 ? recentItemNames : recentItemNames.concat(["Samosa", "Pav Bhaji"]).slice(0, 3);
 
-        
-        for (let recipe of recommendedRecipes) {
-          const dbItem = await MenuItem.findOne({ name: recipe });
-          if (dbItem) {
-            recommendedItemsSet.add(JSON.stringify(dbItem));
-          }
+    // Send the list of food items to the /v2/recommend endpoint
+    try {
+      const response = await axios.post(
+        'https://food-recommendation-yqpc.onrender.com/v2/recommend',
+          foodItems
+      );
+
+      const recommendedRecipes = response.data.recommended_food_items;
+
+      // Fetch each recommended item from the database if it exists
+      for (let recipe of recommendedRecipes) {
+        const dbItem = await MenuItem.findOne({ name: recipe });
+        if (dbItem) {
+          recommendedItemsSet.add(JSON.stringify(dbItem));
         }
-      } catch (e) {
-        console.log(e);
       }
-    });
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+    }
 
-    
-    const ordersRecommendationsPromises = orders.map(async (order) => {
-      const item = order.items[0]; 
-      const itemName = item.name;
-      let foodItemTitleCase = toTitleCase(itemName); 
-
-      
-      try {
-        const response = await axios.get(
-          `https://food-recommendation-yqpc.onrender.com/recommend/${foodItemTitleCase}`
-        );
-        const recommendedRecipes = response.data.recommended_recipes;
-
-        for (let recipe of recommendedRecipes) {
-          const dbItem = await MenuItem.findOne({ name: recipe });
-          if (dbItem) {
-            recommendedItemsSet.add(JSON.stringify(dbItem));
-          }
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    });
-
-    
-    await Promise.all(ordersRecommendationsPromises);
-
-    
-    await Promise.all(defaultRecommendationsPromises);
-
+    // Convert the set of items to an array and parse JSON objects
     const recommendedItems = Array.from(recommendedItemsSet).map((item) =>
       JSON.parse(item)
     );
@@ -230,6 +208,7 @@ exports.getRecommendationv2 = async (req, res, next) => {
   }
 };
 
+// Helper function to convert strings to title case
 function toTitleCase(str) {
   return str.replace(/\w\S*/g, function (txt) {
     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();

@@ -6,6 +6,7 @@ const {
   getOrderbyId,
   listenForNewOrders,
   getRecommendation,
+  getRecommendationv2
 } = require("../controllers/userOrderControl");
 
 const {
@@ -46,6 +47,8 @@ router.get("/events/:vendorId", listenForNewOrders);
 router.get("/user/recommend/:user_id", checkAuth, getRecommendation);
 
 router.get("/user/recommendv2/:user_id", checkAuth, getRecommendation);
+
+router.post("/user/recommend/v2/:user_id" , getRecommendationv2)
 
 router.get(
   "/delivery_boy/orders/:delivery_boy_id",
